@@ -238,7 +238,11 @@ class _MMSEFormState extends State<MMSEForm> {
                           (value) => setState(() => copyingScore = value),
                         ),
 
-                        const SizedBox(height: 30),
+                        const FullscreenImageViewer(
+                          imagePath: 'assets/pentagons.png',
+                        ),
+
+                        const SizedBox(height: 10),
 
                         // Submit Button
                         SizedBox(
@@ -399,6 +403,53 @@ class _MMSEFormState extends State<MMSEForm> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class FullscreenImageViewer extends StatelessWidget {
+  final String imagePath;
+
+  const FullscreenImageViewer({Key? key, required this.imagePath})
+    : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder:
+              (context) => Dialog(
+                backgroundColor: Colors.black,
+                child: Stack(
+                  children: [
+                    Center(child: Image.asset(imagePath, fit: BoxFit.contain)),
+                    Positioned(
+                      top: 40,
+                      right: 20,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Image.asset(imagePath, height: 100, width: 100),
       ),
     );
   }
