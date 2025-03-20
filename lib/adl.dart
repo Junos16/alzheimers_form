@@ -10,7 +10,7 @@ class ADLForm extends StatefulWidget {
 class _ADLFormState extends State<ADLForm> {
   // Initialize scores
   int totalScore = 0;
-  
+
   // Individual scores
   bool bathingScore = false;
   bool dressingScore = false;
@@ -35,18 +35,26 @@ class _ADLFormState extends State<ADLForm> {
 
   void _updateTotalScore() {
     setState(() {
-      totalScore = (bathingScore ? 1 : 0) +
-                   (dressingScore ? 1 : 0) +
-                   (toiletingScore ? 1 : 0) +
-                   (transferringScore ? 1 : 0) +
-                   (continenceScore ? 1 : 0) +
-                   (feedingScore ? 1 : 0);
+      totalScore =
+          (bathingScore ? 1 : 0) +
+          (dressingScore ? 1 : 0) +
+          (toiletingScore ? 1 : 0) +
+          (transferringScore ? 1 : 0) +
+          (continenceScore ? 1 : 0) +
+          (feedingScore ? 1 : 0);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('ADL Assessment'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
@@ -60,8 +68,16 @@ class _ADLFormState extends State<ADLForm> {
                   title: const Text('ADL Assessment'),
                   pinned: true,
                   floating: true,
+                  leading: Builder(
+                    builder: (context) {
+                      return IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.of(context).pop(),
+                      );
+                    },
+                  ),
                 ),
-                
+
                 // Content
                 SliverToBoxAdapter(
                   child: Padding(
@@ -69,13 +85,14 @@ class _ADLFormState extends State<ADLForm> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 70), // Space for floating header
-                        
+                        const SizedBox(height: 10), // Space for floating header
                         // Bathing
                         _buildADLItem(
                           title: 'Bathing',
-                          description: 'Bathes self completely or needs help in bathing only a single part of the body such as the back, genital area or disabled extremity.',
-                          negativeDescription: 'Need help with bathing more than one part of the body, getting in or out of the tub or shower. Requires total bathing.',
+                          description:
+                              'Bathes self completely or needs help in bathing only a single part of the body such as the back, genital area or disabled extremity.',
+                          negativeDescription:
+                              'Need help with bathing more than one part of the body, getting in or out of the tub or shower. Requires total bathing.',
                           value: bathingScore,
                           onChanged: (value) {
                             setState(() {
@@ -84,12 +101,14 @@ class _ADLFormState extends State<ADLForm> {
                             });
                           },
                         ),
-                        
+
                         // Dressing
                         _buildADLItem(
                           title: 'Dressing',
-                          description: 'Get clothes from closets and drawers and puts on clothes and outer garments complete with fasteners. May have help tying shoes.',
-                          negativeDescription: 'Needs help with dressing self or needs to be completely dressed.',
+                          description:
+                              'Get clothes from closets and drawers and puts on clothes and outer garments complete with fasteners. May have help tying shoes.',
+                          negativeDescription:
+                              'Needs help with dressing self or needs to be completely dressed.',
                           value: dressingScore,
                           onChanged: (value) {
                             setState(() {
@@ -98,12 +117,14 @@ class _ADLFormState extends State<ADLForm> {
                             });
                           },
                         ),
-                        
+
                         // Toileting
                         _buildADLItem(
                           title: 'Toileting',
-                          description: 'Goes to toilet, gets on and off, arranges clothes, cleans genital area without help.',
-                          negativeDescription: 'Needs help transferring to the toilet, cleaning self or uses bedpan or commode.',
+                          description:
+                              'Goes to toilet, gets on and off, arranges clothes, cleans genital area without help.',
+                          negativeDescription:
+                              'Needs help transferring to the toilet, cleaning self or uses bedpan or commode.',
                           value: toiletingScore,
                           onChanged: (value) {
                             setState(() {
@@ -112,12 +133,14 @@ class _ADLFormState extends State<ADLForm> {
                             });
                           },
                         ),
-                        
+
                         // Transferring
                         _buildADLItem(
                           title: 'Transferring',
-                          description: 'Moves in and out of bed or chair unassisted. Mechanical transfer aids are acceptable.',
-                          negativeDescription: 'Needs help in moving from bed to chair or requires a complete transfer.',
+                          description:
+                              'Moves in and out of bed or chair unassisted. Mechanical transfer aids are acceptable.',
+                          negativeDescription:
+                              'Needs help in moving from bed to chair or requires a complete transfer.',
                           value: transferringScore,
                           onChanged: (value) {
                             setState(() {
@@ -126,12 +149,14 @@ class _ADLFormState extends State<ADLForm> {
                             });
                           },
                         ),
-                        
+
                         // Continence
                         _buildADLItem(
                           title: 'Continence',
-                          description: 'Exercises complete self control over urination and defecation.',
-                          negativeDescription: 'Is partially or totally incontinent of bowel or bladder.',
+                          description:
+                              'Exercises complete self control over urination and defecation.',
+                          negativeDescription:
+                              'Is partially or totally incontinent of bowel or bladder.',
                           value: continenceScore,
                           onChanged: (value) {
                             setState(() {
@@ -140,12 +165,14 @@ class _ADLFormState extends State<ADLForm> {
                             });
                           },
                         ),
-                        
+
                         // Feeding
                         _buildADLItem(
                           title: 'Feeding',
-                          description: 'Gets food from plate into mouth without help. Preparation of food may be done by another person.',
-                          negativeDescription: 'Needs partial or total help with feeding or requires parenteral feeding.',
+                          description:
+                              'Gets food from plate into mouth without help. Preparation of food may be done by another person.',
+                          negativeDescription:
+                              'Needs partial or total help with feeding or requires parenteral feeding.',
                           value: feedingScore,
                           onChanged: (value) {
                             setState(() {
@@ -154,9 +181,9 @@ class _ADLFormState extends State<ADLForm> {
                             });
                           },
                         ),
-                        
+
                         const SizedBox(height: 30),
-                        
+
                         // Submit Button
                         SizedBox(
                           width: double.infinity,
@@ -165,16 +192,22 @@ class _ADLFormState extends State<ADLForm> {
                               // Show result in a dialog
                               showDialog(
                                 context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('ADL Assessment Result'),
-                                  content: Text('Total Score: $totalScore/6'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(),
-                                      child: const Text('OK'),
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: const Text(
+                                        'ADL Assessment Result',
+                                      ),
+                                      content: Text(
+                                        'Total Score: $totalScore/6',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.of(context).pop(),
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
                               );
                             },
                             child: const Padding(
@@ -192,7 +225,7 @@ class _ADLFormState extends State<ADLForm> {
                 ),
               ],
             ),
-            
+
             // Floating score card
             Positioned(
               top: 0,
@@ -200,7 +233,10 @@ class _ADLFormState extends State<ADLForm> {
               right: 0,
               child: Container(
                 color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12.0),
@@ -220,11 +256,17 @@ class _ADLFormState extends State<ADLForm> {
                     children: [
                       const Text(
                         'Total ADL Score: ',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         '$totalScore/6',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -287,19 +329,20 @@ class _ADLFormState extends State<ADLForm> {
                         width: 2,
                       ),
                     ),
-                    child: value
-                        ? const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 22,
-                          )
-                        : null,
+                    child:
+                        value
+                            ? const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 22,
+                            )
+                            : null,
                   ),
                 ),
               ],
             ),
           ),
-          
+
           // Description
           Padding(
             padding: const EdgeInsets.all(12),
@@ -327,9 +370,7 @@ class _ADLFormState extends State<ADLForm> {
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: Text(description),
-                    ),
+                    Expanded(child: Text(description)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -354,9 +395,7 @@ class _ADLFormState extends State<ADLForm> {
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: Text(negativeDescription),
-                    ),
+                    Expanded(child: Text(negativeDescription)),
                   ],
                 ),
               ],

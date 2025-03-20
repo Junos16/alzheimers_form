@@ -9,9 +9,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Alzheimer's & Elderly Assessment"),
-      ),
+      appBar: AppBar(title: const Text("Alzheimer's & Elderly Assessment")),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -19,20 +17,12 @@ class HomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Comprehensive Assessment Tools',
-                  style: TextStyle(
-                    fontSize: 24, 
-                    fontWeight: FontWeight.bold
-                  ),
-                ),
-                const SizedBox(height: 20),
-                
                 // MMSE Card
                 _buildAssessmentCard(
                   context,
                   title: 'Mini-Mental State Examination (MMSE)',
-                  description: 'A 30-point questionnaire used to measure cognitive impairment in clinical and research settings.',
+                  description:
+                      'A 30-point questionnaire used to measure cognitive impairment in clinical and research settings.',
                   points: '30 points total',
                   iconData: Icons.psychology,
                   color: Colors.blue,
@@ -43,14 +33,15 @@ class HomePage extends StatelessWidget {
                     );
                   },
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // ADL Card
                 _buildAssessmentCard(
                   context,
                   title: 'Activities of Daily Living (ADL)',
-                  description: 'Evaluates functional status and ability to perform everyday activities independently.',
+                  description:
+                      'Evaluates functional status and ability to perform everyday activities independently.',
                   points: '6 points total',
                   iconData: Icons.accessibility_new,
                   color: Colors.green,
@@ -61,36 +52,8 @@ class HomePage extends StatelessWidget {
                     );
                   },
                 ),
-                
-                const SizedBox(height: 30),
-                
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Information',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'These standardized assessment tools help evaluate cognitive function and independence in daily activities for elderly patients or those with suspected dementia.',
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Results should be interpreted by qualified healthcare professionals in the context of a complete clinical evaluation.',
-                      ),
-                    ],
-                  ),
-                ),
+
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -110,9 +73,7 @@ class HomePage extends StatelessWidget {
   }) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -129,11 +90,7 @@ class HomePage extends StatelessWidget {
                       color: color.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      iconData,
-                      color: color,
-                      size: 24,
-                    ),
+                    child: Icon(iconData, color: color, size: 24),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -160,10 +117,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              Text(
-                description,
-                style: const TextStyle(fontSize: 14),
-              ),
+              Text(description, style: const TextStyle(fontSize: 14)),
               const SizedBox(height: 16),
               Container(
                 width: double.infinity,

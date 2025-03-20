@@ -10,33 +10,38 @@ class MMSEForm extends StatefulWidget {
 class _MMSEFormState extends State<MMSEForm> {
   // Initialize with default values
   int totalScore = 0;
-  
+
   // Section 1: Orientation
   int orientationTimeScore = 0;
   int orientationPlaceScore = 0;
-  
+
   // Section 2: Registration
   int registrationScore = 0;
-  
+
   // Section 3: Attention and Calculation
   int attentionScore = 0;
-  
+
   // Section 4: Recall
   int recallScore = 0;
-  
+
   // Section 5: Language
   int namingScore = 0;
   int repetitionScore = 0;
   int commandScore = 0;
   int readingScore = 0;
   int writingScore = 0;
-  
+
   // Section 6: Copying
   int copyingScore = 0;
 
   // Section totals
   int get orientationTotal => orientationTimeScore + orientationPlaceScore;
-  int get languageTotal => namingScore + repetitionScore + commandScore + readingScore + writingScore;
+  int get languageTotal =>
+      namingScore +
+      repetitionScore +
+      commandScore +
+      readingScore +
+      writingScore;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -55,21 +60,31 @@ class _MMSEFormState extends State<MMSEForm> {
 
   void _updateTotalScore() {
     setState(() {
-      totalScore = orientationTimeScore + orientationPlaceScore + registrationScore + 
-                  attentionScore + recallScore + namingScore + repetitionScore + 
-                  commandScore + readingScore + writingScore + copyingScore;
+      totalScore =
+          orientationTimeScore +
+          orientationPlaceScore +
+          registrationScore +
+          attentionScore +
+          recallScore +
+          namingScore +
+          repetitionScore +
+          commandScore +
+          readingScore +
+          writingScore +
+          copyingScore;
     });
   }
 
-  Widget _buildScoreSelector(int maxScore, int currentScore, Function(int) onChanged) {
+  Widget _buildScoreSelector(
+    int maxScore,
+    int currentScore,
+    Function(int) onChanged,
+  ) {
     List<DropdownMenuItem<int>> items = [];
     for (int i = 0; i <= maxScore; i++) {
-      items.add(DropdownMenuItem(
-        value: i,
-        child: Text('$i'),
-      ));
+      items.add(DropdownMenuItem(value: i, child: Text('$i')));
     }
-    
+
     return DropdownButton<int>(
       value: currentScore,
       items: items,
@@ -85,6 +100,13 @@ class _MMSEFormState extends State<MMSEForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('MMSE Assessment'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
@@ -98,8 +120,10 @@ class _MMSEFormState extends State<MMSEForm> {
                   title: const Text('MMSE Assessment'),
                   pinned: true,
                   floating: true,
+                  automaticallyImplyLeading: true,
+                  leading: BackButton(),
                 ),
-                
+
                 // Content
                 SliverToBoxAdapter(
                   child: Padding(
@@ -107,25 +131,32 @@ class _MMSEFormState extends State<MMSEForm> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 70), // Space for floating header
-                        
+                        const SizedBox(height: 10), // Space for floating header
                         // Section 1: Orientation
-                        _buildSectionHeader('Section 1: Orientation', '$orientationTotal/10'),
+                        _buildSectionHeader(
+                          'Section 1: Orientation',
+                          '$orientationTotal/10',
+                        ),
                         _buildQuestionRow(
                           'Year, month, day, date, time',
                           5,
                           orientationTimeScore,
-                          (value) => setState(() => orientationTimeScore = value),
+                          (value) =>
+                              setState(() => orientationTimeScore = value),
                         ),
                         _buildQuestionRow(
                           'Country, town, district, hospital, ward',
                           5,
                           orientationPlaceScore,
-                          (value) => setState(() => orientationPlaceScore = value),
+                          (value) =>
+                              setState(() => orientationPlaceScore = value),
                         ),
 
                         // Section 2: Registration
-                        _buildSectionHeader('Section 2: Registration', '$registrationScore/3'),
+                        _buildSectionHeader(
+                          'Section 2: Registration',
+                          '$registrationScore/3',
+                        ),
                         _buildQuestionRow(
                           'Examiner names 3 objects (e.g., apple, table, penny). '
                           'Patient asked to repeat (1 point for each correct).',
@@ -135,7 +166,10 @@ class _MMSEFormState extends State<MMSEForm> {
                         ),
 
                         // Section 3: Attention and Calculation
-                        _buildSectionHeader('Section 3: Attention and Calculation', '$attentionScore/5'),
+                        _buildSectionHeader(
+                          'Section 3: Attention and Calculation',
+                          '$attentionScore/5',
+                        ),
                         _buildQuestionRow(
                           'Subtract 7 from 100, then repeat from result. '
                           'Alternative: spell "WORLD" backwards - dlrow.',
@@ -145,7 +179,10 @@ class _MMSEFormState extends State<MMSEForm> {
                         ),
 
                         // Section 4: Recall
-                        _buildSectionHeader('Section 4: Recall', '$recallScore/3'),
+                        _buildSectionHeader(
+                          'Section 4: Recall',
+                          '$recallScore/3',
+                        ),
                         _buildQuestionRow(
                           'Ask for names of 3 objects learned earlier.',
                           3,
@@ -154,7 +191,10 @@ class _MMSEFormState extends State<MMSEForm> {
                         ),
 
                         // Section 5: Language
-                        _buildSectionHeader('Section 5: Language', '$languageTotal/8'),
+                        _buildSectionHeader(
+                          'Section 5: Language',
+                          '$languageTotal/8',
+                        ),
                         _buildQuestionRow(
                           'Name a pencil and watch.',
                           2,
@@ -187,7 +227,10 @@ class _MMSEFormState extends State<MMSEForm> {
                         ),
 
                         // Section 6: Copying
-                        _buildSectionHeader('Section 6: Copying', '$copyingScore/1'),
+                        _buildSectionHeader(
+                          'Section 6: Copying',
+                          '$copyingScore/1',
+                        ),
                         _buildQuestionRow(
                           'Ask the patient to copy intersecting pentagons.',
                           1,
@@ -196,7 +239,7 @@ class _MMSEFormState extends State<MMSEForm> {
                         ),
 
                         const SizedBox(height: 30),
-                        
+
                         // Submit Button
                         SizedBox(
                           width: double.infinity,
@@ -205,16 +248,22 @@ class _MMSEFormState extends State<MMSEForm> {
                               // Show result in a dialog
                               showDialog(
                                 context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('MMSE Assessment Result'),
-                                  content: Text('Total Score: $totalScore/30'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(),
-                                      child: const Text('OK'),
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: const Text(
+                                        'MMSE Assessment Result',
+                                      ),
+                                      content: Text(
+                                        'Total Score: $totalScore/30',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed:
+                                              () => Navigator.of(context).pop(),
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
                               );
                             },
                             child: const Padding(
@@ -232,7 +281,7 @@ class _MMSEFormState extends State<MMSEForm> {
                 ),
               ],
             ),
-            
+
             // Floating score card
             Positioned(
               top: 0,
@@ -240,7 +289,10 @@ class _MMSEFormState extends State<MMSEForm> {
               right: 0,
               child: Container(
                 color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12.0),
@@ -260,11 +312,17 @@ class _MMSEFormState extends State<MMSEForm> {
                     children: [
                       const Text(
                         'Total MMSE Score: ',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         '$totalScore/30',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -314,7 +372,12 @@ class _MMSEFormState extends State<MMSEForm> {
     );
   }
 
-  Widget _buildQuestionRow(String question, int maxScore, int currentScore, Function(int) onScoreChanged) {
+  Widget _buildQuestionRow(
+    String question,
+    int maxScore,
+    int currentScore,
+    Function(int) onScoreChanged,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Row(
