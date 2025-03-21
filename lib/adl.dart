@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ADLForm extends StatefulWidget {
   const ADLForm({Key? key}) : super(key: key);
@@ -8,6 +9,7 @@ class ADLForm extends StatefulWidget {
 }
 
 class _ADLFormState extends State<ADLForm> {
+  bool _isFormSubmitted = false;
   // Initialize scores
   int totalScore = 0;
 
@@ -45,6 +47,12 @@ class _ADLFormState extends State<ADLForm> {
     });
   }
 
+  Future<void> _saveData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('adlScore', totalScore);
+    await prefs.setBool('adlSubmitted', true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +60,7 @@ class _ADLFormState extends State<ADLForm> {
         title: const Text('ADL Assessment'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(_isFormSubmitted),
         ),
       ),
       backgroundColor: Colors.white,
@@ -68,14 +76,6 @@ class _ADLFormState extends State<ADLForm> {
                   title: const Text('ADL Assessment'),
                   pinned: true,
                   floating: true,
-                  leading: Builder(
-                    builder: (context) {
-                      return IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.of(context).pop(),
-                      );
-                    },
-                  ),
                 ),
 
                 // Content
@@ -202,8 +202,14 @@ class _ADLFormState extends State<ADLForm> {
                                       ),
                                       actions: [
                                         TextButton(
-                                          onPressed:
-                                              () => Navigator.of(context).pop(),
+                                          onPressed: () {
+                                            _saveData();
+                                            setState(() {
+                                              _isFormSubmitted = true;
+                                            });
+                                            Navigator.of(context).pop();
+                                          },
+                                          // () => Navigator.of(context).pop(),
                                           child: const Text('OK'),
                                         ),
                                       ],

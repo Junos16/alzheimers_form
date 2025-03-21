@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MMSEForm extends StatefulWidget {
   const MMSEForm({Key? key}) : super(key: key);
@@ -8,6 +9,7 @@ class MMSEForm extends StatefulWidget {
 }
 
 class _MMSEFormState extends State<MMSEForm> {
+  bool _isFormSubmitted = false;
   // Initialize with default values
   int totalScore = 0;
 
@@ -75,6 +77,12 @@ class _MMSEFormState extends State<MMSEForm> {
     });
   }
 
+  Future<void> _saveData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('mmseScore', totalScore);
+    await prefs.setBool('mmseSubmitted', true);
+  }
+
   Widget _buildScoreSelector(
     int maxScore,
     int currentScore,
@@ -104,7 +112,7 @@ class _MMSEFormState extends State<MMSEForm> {
         title: const Text('MMSE Assessment'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(_isFormSubmitted),
         ),
       ),
       backgroundColor: Colors.white,
@@ -120,8 +128,6 @@ class _MMSEFormState extends State<MMSEForm> {
                   title: const Text('MMSE Assessment'),
                   pinned: true,
                   floating: true,
-                  automaticallyImplyLeading: true,
-                  leading: BackButton(),
                 ),
 
                 // Content
@@ -262,8 +268,14 @@ class _MMSEFormState extends State<MMSEForm> {
                                       ),
                                       actions: [
                                         TextButton(
-                                          onPressed:
-                                              () => Navigator.of(context).pop(),
+                                          onPressed: () {
+                                            _saveData();
+                                            setState(() {
+                                              _isFormSubmitted = true;
+                                            });
+                                            Navigator.of(context).pop();
+                                          },
+                                          //() => Navigator.of(context).pop(),
                                           child: const Text('OK'),
                                         ),
                                       ],

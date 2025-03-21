@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
 class PersonalInfoForm extends StatefulWidget {
@@ -299,7 +300,9 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
   }
 
   // Save personal information
-  void _savePersonalInfo() {
+  Future<void> _savePersonalInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('personalInfoSubmitted', true);
     setState(() {
       _isFormSubmitted = true;
     });
