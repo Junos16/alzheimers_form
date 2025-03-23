@@ -112,7 +112,96 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  @override
+  bool _allFormsCompleted() {
+    return isPersonalInfoSubmitted &&
+        isMMSESubmitted &&
+        isADLSubmitted &&
+        isAudioSubmitted;
+  }
+
+  Future<void> _resetSurvey() async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Reset Survey'),
+            content: const Text('This will clear all data. Are you sure?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Reset'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      setState(() {
+        // Reset all state variables
+        isPersonalInfoSubmitted = false;
+        isMMSESubmitted = false;
+        isADLSubmitted = false;
+        isAudioSubmitted = false;
+
+        mmseScore = 0;
+        orientationTimeScore = 0;
+        orientationPlaceScore = 0;
+        registrationScore = 0;
+        attentionScore = 0;
+        recallScore = 0;
+        namingScore = 0;
+        repetitionScore = 0;
+        commandScore = 0;
+        readingScore = 0;
+        writingScore = 0;
+        copyingScore = 0;
+
+        adlScore = 0;
+        bathingScore = false;
+        dressingScore = false;
+        toiletingScore = false;
+        transferringScore = false;
+        continenceScore = false;
+        feedingScore = false;
+
+        patientName = '';
+        gender = '';
+        dob = null;
+        doRecording = null;
+        homeTown = '';
+        region = '';
+        currentCity = '';
+        duration = '';
+        birthPlace = '';
+        adDiagnosis = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Survey reset successfully')),
+      );
+    }
+  }
+
+  void _submitSurvey() {
+    // This will be implemented later - placeholder for now
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Survey submission will be implemented in a future update',
+        ),
+      ),
+    );
+  }
+
+  /*@override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -258,6 +347,221 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }*/
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: const Text("Alzheimer's & Elderly Assessment")),
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            // Floating app bar with buttons
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => _resetSurvey(),
+                        icon: const Icon(Icons.add_circle_outline),
+                        label: const Text("New Survey"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed:
+                            _allFormsCompleted() ? () => _submitSurvey() : null,
+                        icon: const Icon(Icons.cloud_upload),
+                        label: const Text("Submit Survey"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          disabledBackgroundColor: Colors.grey.shade300,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Content
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Personal Info Card
+                    _buildAssessmentCard(
+                      context,
+                      title: 'Personal Information',
+                      description:
+                          'Basic demographic information and Alzheimer\'s disease diagnosis status.',
+                      points:
+                          isPersonalInfoSubmitted
+                              ? 'Completed'
+                              : 'Not completed',
+                      iconData: Icons.person,
+                      color: Colors.orange,
+                      statusIcon:
+                          isPersonalInfoSubmitted
+                              ? Icons.check_circle
+                              : Icons.pending_outlined,
+                      statusColor:
+                          isPersonalInfoSubmitted ? Colors.green : Colors.grey,
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PersonalInfoForm(),
+                          ),
+                        );
+
+                        if (result == true) {
+                          _loadFormStatus();
+                        }
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // MMSE Card
+                    _buildAssessmentCard(
+                      context,
+                      title: 'Mini-Mental State Examination (MMSE)',
+                      description:
+                          'A 30-point questionnaire used to measure cognitive impairment in clinical and research settings.',
+                      points:
+                          isMMSESubmitted
+                              ? 'Score: $mmseScore/30'
+                              : '30 points total',
+                      iconData: Icons.psychology,
+                      color: Colors.blue,
+                      statusIcon:
+                          isMMSESubmitted
+                              ? Icons.check_circle
+                              : Icons.pending_outlined,
+                      statusColor: isMMSESubmitted ? Colors.green : Colors.grey,
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MMSEForm(),
+                          ),
+                        );
+
+                        if (result == true) {
+                          _loadFormStatus();
+                        }
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // ADL Card
+                    _buildAssessmentCard(
+                      context,
+                      title: 'Activities of Daily Living (ADL)',
+                      description:
+                          'Evaluates functional status and ability to perform everyday activities independently.',
+                      points:
+                          isADLSubmitted
+                              ? 'Score: $adlScore/6'
+                              : '6 points total',
+                      iconData: Icons.accessibility_new,
+                      color: Colors.green,
+                      statusIcon:
+                          isADLSubmitted
+                              ? Icons.check_circle
+                              : Icons.pending_outlined,
+                      statusColor: isADLSubmitted ? Colors.green : Colors.grey,
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ADLForm(),
+                          ),
+                        );
+
+                        if (result == true) {
+                          _loadFormStatus();
+                        }
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Audio Task Card
+                    _buildAssessmentCard(
+                      context,
+                      title: 'Cookie Theft Description Task',
+                      description:
+                          'Audio recording of patient describing the Cookie Theft picture to assess language and cognitive abilities.',
+                      points: isAudioSubmitted ? 'Completed' : 'Not completed',
+                      iconData: Icons.mic,
+                      color: Colors.purple,
+                      statusIcon:
+                          isAudioSubmitted
+                              ? Icons.check_circle
+                              : Icons.pending_outlined,
+                      statusColor:
+                          isAudioSubmitted ? Colors.green : Colors.grey,
+                      onTap: () async {
+                        if (!isPersonalInfoSubmitted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Please complete the Personal Information form first',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AudioDescriptionTask(),
+                          ),
+                        );
+
+                        if (result == true) {
+                          _loadFormStatus();
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
