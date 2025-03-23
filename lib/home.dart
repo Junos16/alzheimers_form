@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mmse.dart';
 import 'adl.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'personal.dart';
 
 class HomePage extends StatefulWidget {
@@ -184,6 +186,25 @@ class _HomePageState extends State<HomePage> {
         adDiagnosis = false;
       });
 
+      // Delete audio recordings
+      try {
+        final directory = await getApplicationDocumentsDirectory();
+        final recordingsDir = Directory('${directory.path}/recordings');
+
+        if (await recordingsDir.exists()) {
+          final files = await recordingsDir.list().toList();
+          for (final file in files) {
+            if (file is File && file.path.contains('cookie_theft')) {
+              await file.delete();
+            }
+          }
+        }
+      } catch (e) {
+        print('Error deleting audio files: $e');
+      }
+
+      // Reload form status
+      _loadFormStatus();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Survey reset successfully')),
       );
