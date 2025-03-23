@@ -245,7 +245,7 @@ class _MMSEFormState extends State<MMSEForm> {
                         ),
 
                         const FullscreenImageViewer(
-                          imagePath: 'assets/pentagons.png',
+                          imagePath: 'assets/pentagons.jpg',
                         ),
 
                         const SizedBox(height: 10),
@@ -430,29 +430,32 @@ class FullscreenImageViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        showDialog(
-          context: context,
-          builder:
-              (context) => Dialog(
-                backgroundColor: Colors.black,
-                child: Stack(
-                  children: [
-                    Center(child: Image.asset(imagePath, fit: BoxFit.contain)),
-                    Positioned(
-                      top: 40,
-                      right: 20,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                        onPressed: () => Navigator.of(context).pop(),
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => Scaffold(
+                  backgroundColor: Colors.black,
+                  appBar: AppBar(
+                    backgroundColor: Colors.black,
+                    iconTheme: const IconThemeData(color: Colors.white),
+                    elevation: 0,
+                  ),
+                  body: SafeArea(
+                    child: InteractiveViewer(
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: OrientationBuilder(
+                        builder: (context, orientation) {
+                          return Center(
+                            child: Image.asset(imagePath, fit: BoxFit.contain),
+                          );
+                        },
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+          ),
         );
       },
       child: Container(

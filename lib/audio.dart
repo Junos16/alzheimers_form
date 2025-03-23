@@ -65,16 +65,19 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.grey.shade200,
                     ),
-                    child: const Center(
-                      child: Text(
+                    child: const FullscreenImageViewer(
+                      imagePath: "assets/cookie_theft.jpg",
+                    ),
+                    /*const Center(
+                      /*child: Text(
                         'Cookie Theft Image\n(Placeholder)',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
-                      ),
-                    ),
+                      ),*/
+                    ),*/
                   ),
 
                   const SizedBox(height: 30),
@@ -277,5 +280,60 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
     setState(() {
       _isFormSubmitted = true;
     });
+  }
+}
+
+class FullscreenImageViewer extends StatelessWidget {
+  final String imagePath;
+
+  const FullscreenImageViewer({Key? key, required this.imagePath})
+    : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => Scaffold(
+                  backgroundColor: Colors.black,
+                  appBar: AppBar(
+                    backgroundColor: Colors.black,
+                    iconTheme: const IconThemeData(color: Colors.white),
+                    elevation: 0,
+                  ),
+                  body: SafeArea(
+                    child: InteractiveViewer(
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: OrientationBuilder(
+                        builder: (context, orientation) {
+                          return Center(
+                            child: Image.asset(imagePath, fit: BoxFit.contain),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Image.asset(
+          imagePath,
+          height: 150,
+          width: double.infinity,
+          fit: BoxFit.contain,
+        ),
+      ),
+    );
   }
 }
