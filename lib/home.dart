@@ -1,3 +1,4 @@
+import 'audio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'mmse.dart';
@@ -16,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   bool isPersonalInfoSubmitted = false;
   bool isMMSESubmitted = false;
   bool isADLSubmitted = false;
+  bool isAudioSubmitted = false;
 
   // Scores
   int mmseScore = 0;
@@ -34,6 +36,7 @@ class _HomePageState extends State<HomePage> {
       isPersonalInfoSubmitted = prefs.getBool('personalInfoSubmitted') ?? false;
       isMMSESubmitted = prefs.getBool('mmseSubmitted') ?? false;
       isADLSubmitted = prefs.getBool('adlSubmitted') ?? false;
+      isAudioSubmitted = prefs.getBool('audioSubmitted') ?? false;
 
       mmseScore = prefs.getInt('mmseScore') ?? 0;
       adlScore = prefs.getInt('adlScore') ?? 0;
@@ -143,6 +146,34 @@ class _HomePageState extends State<HomePage> {
                 ),
 
                 const SizedBox(height: 20),
+
+                // Audio Task Card
+                _buildAssessmentCard(
+                  context,
+                  title: 'Cookie Theft Description Task',
+                  description:
+                      'Audio recording of patient describing the Cookie Theft picture to assess language and cognitive abilities.',
+                  points: isAudioSubmitted ? 'Completed' : 'Not completed',
+                  iconData: Icons.mic,
+                  color: Colors.purple,
+                  statusIcon:
+                      isAudioSubmitted
+                          ? Icons.check_circle
+                          : Icons.pending_outlined,
+                  statusColor: isAudioSubmitted ? Colors.green : Colors.grey,
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AudioDescriptionTask(),
+                      ),
+                    );
+
+                    if (result == true) {
+                      _loadFormStatus();
+                    }
+                  },
+                ),
               ],
             ),
           ),
