@@ -51,6 +51,13 @@ class _ADLFormState extends State<ADLForm> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('adlScore', totalScore);
     await prefs.setBool('adlSubmitted', true);
+
+    await prefs.setBool('bathingScore', bathingScore);
+    await prefs.setBool('dressingScore', dressingScore);
+    await prefs.setBool('toiletingScore', toiletingScore);
+    await prefs.setBool('transferringScore', transferringScore);
+    await prefs.setBool('continenceScore', continenceScore);
+    await prefs.setBool('feedingScore', feedingScore);
   }
 
   @override

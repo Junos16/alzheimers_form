@@ -14,17 +14,24 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
 
   // Form controllers
   final _nameController = TextEditingController();
-  DateTime? _dob;
-  DateTime? _doRecording;
-  String _gender = 'Male';
   final _homeTownController = TextEditingController();
   final _regionController = TextEditingController();
   final _currentCityController = TextEditingController();
   final _durationController = TextEditingController();
   final _birthPlaceController = TextEditingController();
-  bool _adDiagnosis = false;
 
+  bool _adDiagnosis = false;
   bool _isFormSubmitted = false;
+
+  String _name = '';
+  DateTime? _dob;
+  DateTime? _doRecording;
+  String _gender = 'Male';
+  String _homeTown = '';
+  String _region = '';
+  String _currentCity = '';
+  String _duration = '';
+  String _birthPlace = '';
 
   @override
   void dispose() {
@@ -35,6 +42,36 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
     _durationController.dispose();
     _birthPlaceController.dispose();
     super.dispose();
+  }
+
+  // Save personal information
+  Future<void> _savePersonalInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Save form submission status
+    await prefs.setBool('personalInfoSubmitted', true);
+
+    // Save all field values
+    await prefs.setString('name', _nameController.text);
+    await prefs.setString('gender', _gender);
+    await prefs.setString('homeTown', _homeTownController.text);
+    await prefs.setString('region', _regionController.text);
+    await prefs.setString('currentCity', _currentCityController.text);
+    await prefs.setString('duration', _durationController.text);
+    await prefs.setString('birthPlace', _birthPlaceController.text);
+    await prefs.setBool('adDiagnosis', _adDiagnosis);
+
+    // Save dates as ISO strings
+    if (_dob != null) {
+      await prefs.setString('dob', _dob!.toIso8601String());
+    }
+    if (_doRecording != null) {
+      await prefs.setString('doRecording', _doRecording!.toIso8601String());
+    }
+
+    setState(() {
+      _isFormSubmitted = true;
+    });
   }
 
   // Date picker function
@@ -297,15 +334,6 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
         ),
       ),
     );
-  }
-
-  // Save personal information
-  Future<void> _savePersonalInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('personalInfoSubmitted', true);
-    setState(() {
-      _isFormSubmitted = true;
-    });
   }
 
   // UI Components

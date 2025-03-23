@@ -21,7 +21,36 @@ class _HomePageState extends State<HomePage> {
 
   // Scores
   int mmseScore = 0;
+  int orientationTimeScore = 0;
+  int orientationPlaceScore = 0;
+  int registrationScore = 0;
+  int attentionScore = 0;
+  int recallScore = 0;
+  int namingScore = 0;
+  int repetitionScore = 0;
+  int commandScore = 0;
+  int readingScore = 0;
+  int writingScore = 0;
+  int copyingScore = 0;
+
   int adlScore = 0;
+  bool bathingScore = false;
+  bool dressingScore = false;
+  bool toiletingScore = false;
+  bool transferringScore = false;
+  bool continenceScore = false;
+  bool feedingScore = false;
+
+  String patientName = '';
+  String gender = '';
+  DateTime? dob;
+  DateTime? doRecording;
+  String homeTown = '';
+  String region = '';
+  String currentCity = '';
+  String duration = '';
+  String birthPlace = '';
+  bool adDiagnosis = false;
 
   @override
   void initState() {
@@ -39,7 +68,47 @@ class _HomePageState extends State<HomePage> {
       isAudioSubmitted = prefs.getBool('audioSubmitted') ?? false;
 
       mmseScore = prefs.getInt('mmseScore') ?? 0;
+
+      orientationTimeScore = prefs.getInt('orientationTimeScore') ?? 0;
+      orientationPlaceScore = prefs.getInt('orientationPlaceScore') ?? 0;
+      registrationScore = prefs.getInt('registrationScore') ?? 0;
+      attentionScore = prefs.getInt('attentionScore') ?? 0;
+      recallScore = prefs.getInt('recallScore') ?? 0;
+      namingScore = prefs.getInt('namingScore') ?? 0;
+      repetitionScore = prefs.getInt('repetitionScore') ?? 0;
+      commandScore = prefs.getInt('commandScore') ?? 0;
+      readingScore = prefs.getInt('readingScore') ?? 0;
+      writingScore = prefs.getInt('writingScore') ?? 0;
+      copyingScore = prefs.getInt('copyingScore') ?? 0;
+
       adlScore = prefs.getInt('adlScore') ?? 0;
+
+      bathingScore = prefs.getBool('bathingScore') ?? false;
+      dressingScore = prefs.getBool('dressingScore') ?? false;
+      toiletingScore = prefs.getBool('toiletingScore') ?? false;
+      transferringScore = prefs.getBool('transferringScore') ?? false;
+      continenceScore = prefs.getBool('continenceScore') ?? false;
+      feedingScore = prefs.getBool('feedingScore') ?? false;
+
+      patientName = prefs.getString('name') ?? '';
+      gender = prefs.getString('gender') ?? '';
+      homeTown = prefs.getString('homeTown') ?? '';
+      region = prefs.getString('region') ?? '';
+      currentCity = prefs.getString('currentCity') ?? '';
+      duration = prefs.getString('duration') ?? '';
+      birthPlace = prefs.getString('birthPlace') ?? '';
+      adDiagnosis = prefs.getBool('adDiagnosis') ?? false;
+
+      // Load dates
+      final dobString = prefs.getString('dob');
+      if (dobString != null) {
+        dob = DateTime.parse(dobString);
+      }
+
+      final doRecordingString = prefs.getString('doRecording');
+      if (doRecordingString != null) {
+        doRecording = DateTime.parse(doRecordingString);
+      }
     });
   }
 
@@ -162,6 +231,18 @@ class _HomePageState extends State<HomePage> {
                           : Icons.pending_outlined,
                   statusColor: isAudioSubmitted ? Colors.green : Colors.grey,
                   onTap: () async {
+                    if (!isPersonalInfoSubmitted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Please complete the Personal Information form first',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
                     final result = await Navigator.push(
                       context,
                       MaterialPageRoute(

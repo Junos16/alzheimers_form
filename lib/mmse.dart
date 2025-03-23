@@ -81,6 +81,17 @@ class _MMSEFormState extends State<MMSEForm> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('mmseScore', totalScore);
     await prefs.setBool('mmseSubmitted', true);
+    await prefs.setInt('orientationTimeScore', orientationTimeScore);
+    await prefs.setInt('orientationPlaceScore', orientationPlaceScore);
+    await prefs.setInt('registrationScore', registrationScore);
+    await prefs.setInt('attentionScore', attentionScore);
+    await prefs.setInt('recallScore', recallScore);
+    await prefs.setInt('namingScore', namingScore);
+    await prefs.setInt('repetitionScore', repetitionScore);
+    await prefs.setInt('commandScore', commandScore);
+    await prefs.setInt('readingScore', readingScore);
+    await prefs.setInt('writingScore', writingScore);
+    await prefs.setInt('copyingScore', copyingScore);
   }
 
   Widget _buildScoreSelector(

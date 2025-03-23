@@ -252,8 +252,13 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
         await recordingsDir.create(recursive: true);
       }
 
+      // Get patient name from shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      final patientName = prefs.getString('name') ?? 'unknown';
+
+      // Create filename with patient name
       final filename =
-          'cookie_theft_${DateTime.now().millisecondsSinceEpoch}.m4a';
+          '${patientName}_cookie_theft_${DateTime.now().millisecondsSinceEpoch}.m4a';
       final path = '${recordingsDir.path}/$filename';
 
       print('Starting recording to path: $path');
