@@ -1,3 +1,4 @@
+import 'services.dart';
 import 'audio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -145,6 +146,7 @@ class _HomePageState extends State<HomePage> {
     if (confirmed == true) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
+      await prefs.setBool('surveySubmitted', false);
 
       setState(() {
         // Reset all state variables
@@ -211,15 +213,48 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _submitSurvey() {
-    // This will be implemented later - placeholder for now
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Survey submission will be implemented in a future update',
-        ),
-      ),
+  void _submitSurvey() async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
+
+    try {
+      final success = await GoogleServices.submitSurvey();
+
+      // Pop loading dialog
+      Navigator.of(context).pop();
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Survey submitted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Failed to submit survey or survey already submitted',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Pop loading dialog
+      Navigator.of(context).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   /*@override
@@ -416,13 +451,12 @@ class _HomePageState extends State<HomePage> {
                         icon: const Icon(Icons.cloud_upload),
                         label: const Text("Submit Survey"),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 12,
                           ),
-                          disabledBackgroundColor: Colors.grey.shade300,
                         ),
                       ),
                     ],
