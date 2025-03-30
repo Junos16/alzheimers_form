@@ -55,6 +55,8 @@ class _HomePageState extends State<HomePage> {
   String birthPlace = '';
   bool adDiagnosis = false;
 
+  String audioFileName = '';
+
   @override
   void initState() {
     super.initState();
@@ -101,6 +103,8 @@ class _HomePageState extends State<HomePage> {
       duration = prefs.getString('duration') ?? '';
       birthPlace = prefs.getString('birthPlace') ?? '';
       adDiagnosis = prefs.getBool('adDiagnosis') ?? false;
+
+      audioFileName = prefs.getString('audioFileName') ?? '';
 
       // Load dates
       final dobString = prefs.getString('dob');
@@ -186,6 +190,8 @@ class _HomePageState extends State<HomePage> {
         duration = '';
         birthPlace = '';
         adDiagnosis = false;
+
+        audioFileName = '';
       });
 
       // Delete audio recordings
@@ -256,157 +262,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
-
-  /*@override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text("Alzheimer's & Elderly Assessment")),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Personal Info Card
-                _buildAssessmentCard(
-                  context,
-                  title: 'Personal Information',
-                  description:
-                      'Basic demographic information and Alzheimer\'s disease diagnosis status.',
-                  points:
-                      isPersonalInfoSubmitted ? 'Completed' : 'Not completed',
-                  iconData: Icons.person,
-                  color: Colors.orange,
-                  statusIcon:
-                      isPersonalInfoSubmitted
-                          ? Icons.check_circle
-                          : Icons.pending_outlined,
-                  statusColor:
-                      isPersonalInfoSubmitted ? Colors.green : Colors.grey,
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PersonalInfoForm(),
-                      ),
-                    );
-
-                    if (result == true) {
-                      _loadFormStatus();
-                    }
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // MMSE Card
-                _buildAssessmentCard(
-                  context,
-                  title: 'Mini-Mental State Examination (MMSE)',
-                  description:
-                      'A 30-point questionnaire used to measure cognitive impairment in clinical and research settings.',
-                  points:
-                      isMMSESubmitted
-                          ? 'Score: $mmseScore/30'
-                          : '30 points total',
-                  iconData: Icons.psychology,
-                  color: Colors.blue,
-                  statusIcon:
-                      isMMSESubmitted
-                          ? Icons.check_circle
-                          : Icons.pending_outlined,
-                  statusColor: isMMSESubmitted ? Colors.green : Colors.grey,
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MMSEForm()),
-                    );
-
-                    if (result == true) {
-                      _loadFormStatus();
-                    }
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // ADL Card
-                _buildAssessmentCard(
-                  context,
-                  title: 'Activities of Daily Living (ADL)',
-                  description:
-                      'Evaluates functional status and ability to perform everyday activities independently.',
-                  points:
-                      isADLSubmitted ? 'Score: $adlScore/6' : '6 points total',
-                  iconData: Icons.accessibility_new,
-                  color: Colors.green,
-                  statusIcon:
-                      isADLSubmitted
-                          ? Icons.check_circle
-                          : Icons.pending_outlined,
-                  statusColor: isADLSubmitted ? Colors.green : Colors.grey,
-                  onTap: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ADLForm()),
-                    );
-
-                    if (result == true) {
-                      _loadFormStatus();
-                    }
-                  },
-                ),
-
-                const SizedBox(height: 20),
-
-                // Audio Task Card
-                _buildAssessmentCard(
-                  context,
-                  title: 'Cookie Theft Description Task',
-                  description:
-                      'Audio recording of patient describing the Cookie Theft picture to assess language and cognitive abilities.',
-                  points: isAudioSubmitted ? 'Completed' : 'Not completed',
-                  iconData: Icons.mic,
-                  color: Colors.purple,
-                  statusIcon:
-                      isAudioSubmitted
-                          ? Icons.check_circle
-                          : Icons.pending_outlined,
-                  statusColor: isAudioSubmitted ? Colors.green : Colors.grey,
-                  onTap: () async {
-                    if (!isPersonalInfoSubmitted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Please complete the Personal Information form first',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      return;
-                    }
-
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AudioDescriptionTask(),
-                      ),
-                    );
-
-                    if (result == true) {
-                      _loadFormStatus();
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }*/
 
   @override
   Widget build(BuildContext context) {
