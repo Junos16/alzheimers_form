@@ -34,6 +34,12 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
   String _birthPlace = '';
 
   @override
+  void initState() {
+    super.initState();
+    _loadPersonalInfo();
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _homeTownController.dispose();
@@ -44,12 +50,36 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
     super.dispose();
   }
 
+  //Load personal information
+  Future<void> _loadPersonalInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('isPersonalInfoSubmitted')) {
+      setState(() {
+        _nameController.text = prefs.getString('name') ?? '';
+        _gender = prefs.getString('gender') ?? 'Male';
+        _homeTownController.text = prefs.getString('homeTown') ?? '';
+        _regionController.text = prefs.getString('region') ?? '';
+        _currentCityController.text = prefs.getString('currentCity') ?? '';
+        _durationController.text = prefs.getString('duration') ?? '';
+        _birthPlaceController.text = prefs.getString('birthPlace') ?? '';
+        _adDiagnosis = prefs.getBool('adDiagnosis') ?? false;
+
+        final dobString = prefs.getString('dob');
+        if (dobString != null) _dob = DateTime.parse(dobString);
+
+        final doRecordingString = prefs.getString('doRecording');
+        if (doRecordingString != null)
+          _doRecording = DateTime.parse(doRecordingString);
+      });
+    }
+  }
+
   // Save personal information
   Future<void> _savePersonalInfo() async {
     final prefs = await SharedPreferences.getInstance();
 
     // Save form submission status
-    await prefs.setBool('personalInfoSubmitted', true);
+    await prefs.setBool('isPersonalInfoSubmitted', true);
 
     // Save all field values
     await prefs.setString('name', _nameController.text);
@@ -253,9 +283,9 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        setState(() {
+                                        /*setState(() {
                                           _isFormSubmitted = true;
-                                        });
+                                        });*/
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('OK'),

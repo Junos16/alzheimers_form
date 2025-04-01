@@ -26,6 +26,7 @@ class _ADLFormState extends State<ADLForm> {
   @override
   void initState() {
     super.initState();
+    _loadData();
     _updateTotalScore();
   }
 
@@ -33,6 +34,22 @@ class _ADLFormState extends State<ADLForm> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('isADLSubmitted')) {
+      setState(() {
+        totalScore = prefs.getInt('adlScore') ?? 0;
+
+        bathingScore = prefs.getBool('bathingScore') ?? false;
+        dressingScore = prefs.getBool('dressingScore') ?? false;
+        toiletingScore = prefs.getBool('toiletingScore') ?? false;
+        transferringScore = prefs.getBool('transferringScore') ?? false;
+        continenceScore = prefs.getBool('continenceScore') ?? false;
+        feedingScore = prefs.getBool('feedingScore') ?? false;
+      });
+    }
   }
 
   void _updateTotalScore() {

@@ -50,6 +50,8 @@ class _MMSEFormState extends State<MMSEForm> {
   @override
   void initState() {
     super.initState();
+    // Load saved data
+    _loadData();
     // Calculate initial total score
     _updateTotalScore();
   }
@@ -75,6 +77,26 @@ class _MMSEFormState extends State<MMSEForm> {
           writingScore +
           copyingScore;
     });
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('isMMMSESubmitted')) {
+      setState(() {
+        totalScore = prefs.getInt('mmseScore')!;
+        orientationTimeScore = prefs.getInt('orientationTimeScore')!;
+        orientationPlaceScore = prefs.getInt('orientationPlaceScore')!;
+        registrationScore = prefs.getInt('registrationScore')!;
+        attentionScore = prefs.getInt('attentionScore')!;
+        recallScore = prefs.getInt('recallScore')!;
+        namingScore = prefs.getInt('namingScore')!;
+        repetitionScore = prefs.getInt('repetitionScore')!;
+        commandScore = prefs.getInt('commandScore')!;
+        readingScore = prefs.getInt('readingScore')!;
+        writingScore = prefs.getInt('writingScore')!;
+        copyingScore = prefs.getInt('copyingScore')!;
+      });
+    }
   }
 
   Future<void> _saveData() async {
