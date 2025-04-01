@@ -22,6 +22,13 @@ class _HomePageState extends State<HomePage> {
   bool isADLSubmitted = false;
   bool isAudioSubmitted = false;
 
+  // Retake tracking
+  bool mmseRetaken = false;
+  bool adlRetaken = false;
+  bool audioRetaken = false;
+  bool hasSubmittedInitialSurvey = false;
+  bool hasRetakes = false;
+
   // Scores
   int mmseScore = 0;
   int orientationTimeScore = 0;
@@ -71,6 +78,12 @@ class _HomePageState extends State<HomePage> {
       isMMSESubmitted = prefs.getBool('mmseSubmitted') ?? false;
       isADLSubmitted = prefs.getBool('adlSubmitted') ?? false;
       isAudioSubmitted = prefs.getBool('audioSubmitted') ?? false;
+
+      mmseRetaken = prefs.getBool('mmseRetaken') ?? false;
+      adlRetaken = prefs.getBool('adlRetaken') ?? false;
+      audioRetaken = prefs.getBool('audioRetaken') ?? false;
+      hasSubmittedInitialSurvey = prefs.getBool('surveySubmitted') ?? false;
+      hasRetakes = mmseRetaken || adlRetaken || audioRetaken;
 
       mmseScore = prefs.getInt('mmseScore') ?? 0;
 
@@ -219,7 +232,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _submitSurvey() async {
+  /*void _submitSurvey() async {
     // Show loading indicator
     showDialog(
       context: context,
@@ -260,6 +273,227 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }*/
+
+  void _submitSurvey() async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final success =
+          hasRetakes
+              ? await GoogleServices.submitRetake(
+                mmseRetaken,
+                adlRetaken,
+                audioRetaken,
+              )
+              : await GoogleServices.submitSurvey();
+
+      // Pop loading dialog
+      Navigator.of(context).pop();
+
+      if (success) {
+        // Reset retake flags if this was a retake submission
+        if (hasRetakes) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('mmseRetaken', false);
+          await prefs.setBool('adlRetaken', false);
+          await prefs.setBool('audioRetaken', false);
+
+          setState(() {
+            mmseRetaken = false;
+            adlRetaken = false;
+            audioRetaken = false;
+            hasRetakes = false;
+          });
+        } else {
+          // If this was the initial survey submission
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('surveySubmitted', true);
+
+          setState(() {
+            hasSubmittedInitialSurvey = true;
+          });
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              hasRetakes
+                  ? 'Retake submitted successfully'
+                  : 'Survey submitted successfully',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to submit survey'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      // Pop loading dialog
+      Navigator.of(context).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _startRetake(String assessment) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Retake $assessment'),
+            content: Text(
+              'This will clear the previous $assessment data. Are you sure?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Retake'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Reset specific assessment data
+      if (assessment == 'MMSE') {
+        await prefs.setInt('mmseScore', 0);
+        await prefs.setInt('orientationTimeScore', 0);
+        await prefs.setInt('orientationPlaceScore', 0);
+        await prefs.setInt('registrationScore', 0);
+        await prefs.setInt('attentionScore', 0);
+        await prefs.setInt('recallScore', 0);
+        await prefs.setInt('namingScore', 0);
+        await prefs.setInt('repetitionScore', 0);
+        await prefs.setInt('commandScore', 0);
+        await prefs.setInt('readingScore', 0);
+        await prefs.setInt('writingScore', 0);
+        await prefs.setInt('copyingScore', 0);
+        await prefs.setBool('mmseSubmitted', false);
+        await prefs.setBool('mmseRetaken', true);
+
+        setState(() {
+          mmseScore = 0;
+          orientationTimeScore = 0;
+          orientationPlaceScore = 0;
+          registrationScore = 0;
+          attentionScore = 0;
+          recallScore = 0;
+          namingScore = 0;
+          repetitionScore = 0;
+          commandScore = 0;
+          readingScore = 0;
+          writingScore = 0;
+          copyingScore = 0;
+          isMMSESubmitted = false;
+          mmseRetaken = true;
+          hasRetakes = true;
+        });
+
+        // Navigate to MMSE form
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MMSEForm()),
+        );
+
+        if (result == true) {
+          _loadFormStatus();
+        }
+      } else if (assessment == 'ADL') {
+        await prefs.setInt('adlScore', 0);
+        await prefs.setBool('bathingScore', false);
+        await prefs.setBool('dressingScore', false);
+        await prefs.setBool('toiletingScore', false);
+        await prefs.setBool('transferringScore', false);
+        await prefs.setBool('continenceScore', false);
+        await prefs.setBool('feedingScore', false);
+        await prefs.setBool('adlSubmitted', false);
+        await prefs.setBool('adlRetaken', true);
+
+        setState(() {
+          adlScore = 0;
+          bathingScore = false;
+          dressingScore = false;
+          toiletingScore = false;
+          transferringScore = false;
+          continenceScore = false;
+          feedingScore = false;
+          isADLSubmitted = false;
+          adlRetaken = true;
+          hasRetakes = true;
+        });
+
+        // Navigate to ADL form
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ADLForm()),
+        );
+
+        if (result == true) {
+          _loadFormStatus();
+        }
+      } else if (assessment == 'Audio') {
+        await prefs.setBool('audioSubmitted', false);
+        await prefs.setBool('audioRetaken', true);
+        await prefs.setString('audioFileName', '');
+
+        // Delete previous audio recording
+        try {
+          final directory = await getApplicationDocumentsDirectory();
+          final recordingsDir = Directory('${directory.path}/recordings');
+
+          if (await recordingsDir.exists()) {
+            final files = await recordingsDir.list().toList();
+            for (final file in files) {
+              if (file is File && file.path.contains('cookie_theft')) {
+                await file.delete();
+              }
+            }
+          }
+        } catch (e) {
+          print('Error deleting audio files: $e');
+        }
+
+        setState(() {
+          isAudioSubmitted = false;
+          audioRetaken = true;
+          audioFileName = '';
+          hasRetakes = true;
+        });
+
+        // Navigate to Audio task
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AudioDescriptionTask()),
+        );
+
+        if (result == true) {
+          _loadFormStatus();
+        }
+      }
     }
   }
 
@@ -302,9 +536,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                       ElevatedButton.icon(
                         onPressed:
-                            _allFormsCompleted() ? () => _submitSurvey() : null,
+                            _allFormsCompleted() || hasRetakes
+                                ? () => _submitSurvey()
+                                : null,
                         icon: const Icon(Icons.cloud_upload),
-                        label: const Text("Submit Survey"),
+                        label: Text(
+                          hasRetakes ? "Submit Retake" : "Submit Survey",
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
@@ -477,7 +715,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildAssessmentCard(
+  /*Widget _buildAssessmentCard(
     BuildContext context, {
     required String title,
     required String description,
@@ -561,6 +799,163 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }*/
+
+  Widget _buildAssessmentCard(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required String points,
+    required IconData iconData,
+    required Color color,
+    required VoidCallback onTap,
+    required IconData statusIcon,
+    required Color statusColor,
+  }) {
+    bool isRetakable =
+        hasSubmittedInitialSurvey &&
+        ((title.contains('MMSE') && isMMSESubmitted) ||
+            (title.contains('ADL') && isADLSubmitted) ||
+            (title.contains('Cookie Theft') && isAudioSubmitted));
+
+    bool isRetaken =
+        (title.contains('MMSE') && mmseRetaken) ||
+        (title.contains('ADL') && adlRetaken) ||
+        (title.contains('Cookie Theft') && audioRetaken);
+
+    String assessmentType =
+        title.contains('MMSE')
+            ? 'MMSE'
+            : title.contains('ADL')
+            ? 'ADL'
+            : 'Audio';
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(iconData, color: color, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Icon(statusIcon, color: statusColor, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              isRetaken ? "$points (Retaken)" : points,
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(description, style: const TextStyle(fontSize: 14)),
+              const SizedBox(height: 16),
+              if (isRetakable)
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'View',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _startRetake(assessmentType),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.deepOrange,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Retake',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      points.contains('Completed') || points.contains('Score')
+                          ? isRetaken
+                              ? 'View Retake'
+                              : 'View Assessment'
+                          : 'Start Assessment',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

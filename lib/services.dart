@@ -291,4 +291,87 @@ class GoogleServices {
       return false;
     }
   }
+
+  // Submit retake data
+  static Future<bool> submitRetake(
+    bool mmseRetaken,
+    bool adlRetaken,
+    bool audioRetaken,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Get the original survey ID
+      final String id = prefs.getString('surveyId') ?? '';
+      if (id.isEmpty) {
+        return false; // Cannot submit retake without original ID
+      }
+
+      // Collect only retaken data
+      final retakeData = <String, dynamic>{
+        // Add a retake identifier
+        'isRetake': true,
+        'retakeTime': DateTime.now().toIso8601String(),
+      };
+
+      // Add MMSE data if retaken
+      if (mmseRetaken) {
+        retakeData.addAll({
+          'mmseScore': prefs.getInt('mmseScore') ?? 0,
+          'orientationTimeScore': prefs.getInt('orientationTimeScore') ?? 0,
+          'orientationPlaceScore': prefs.getInt('orientationPlaceScore') ?? 0,
+          'registrationScore': prefs.getInt('registrationScore') ?? 0,
+          'attentionScore': prefs.getInt('attentionScore') ?? 0,
+          'recallScore': prefs.getInt('recallScore') ?? 0,
+          'namingScore': prefs.getInt('namingScore') ?? 0,
+          'repetitionScore': prefs.getInt('repetitionScore') ?? 0,
+          'commandScore': prefs.getInt('commandScore') ?? 0,
+          'readingScore': prefs.getInt('readingScore') ?? 0,
+          'writingScore': prefs.getInt('writingScore') ?? 0,
+          'copyingScore': prefs.getInt('copyingScore') ?? 0,
+        });
+      }
+
+      // Add ADL data if retaken
+      if (adlRetaken) {
+        retakeData.addAll({
+          'adlScore': prefs.getInt('adlScore') ?? 0,
+          'bathingScore': prefs.getBool('bathingScore') ?? false ? 1 : 0,
+          'dressingScore': prefs.getBool('dressingScore') ?? false ? 1 : 0,
+          'toiletingScore': prefs.getBool('toiletingScore') ?? false ? 1 : 0,
+          'transferringScore':
+              prefs.getBool('transferringScore') ?? false ? 1 : 0,
+          'continenceScore': prefs.getBool('continenceScore') ?? false ? 1 : 0,
+          'feedingScore': prefs.getBool('feedingScore') ?? false ? 1 : 0,
+        });
+      }
+
+      // Handle audio retake
+      String? audioFileId;
+      if (audioRetaken) {
+        final directory = await getApplicationDocumentsDirectory();
+        final recordingsDir = Directory('${directory.path}/recordings');
+
+        if (await recordingsDir.exists()) {
+          final files = await recordingsDir.list().toList();
+          for (final file in files) {
+            if (file is File && file.path.contains('cookie_theft')) {
+              // Upload retake audio file with ID prefixed
+              audioFileId = await uploadAudioToDrive(file.path, id + "_retake");
+              break;
+            }
+          }
+        }
+
+        retakeData['audioFileId'] = audioFileId ?? 'Not uploaded';
+      }
+
+      // Save retake data to Google Sheets
+      final success = await saveSurveyToSheets(id, retakeData, null);
+      return success;
+    } catch (e) {
+      print('Error submitting retake: $e');
+      return false;
+    }
+  }
 }
