@@ -146,6 +146,10 @@ class GoogleServices {
         ...surveyData,
         'audioFileId': audioFileId ?? 'Not uploaded',
         'submissionTime': DateTime.now().toIso8601String(),
+        // Always include these fields in the data structure,
+        // but only set values if it's a retake
+        'isRetake': surveyData['isRetake'] ?? '',
+        'retakeTime': surveyData['retakeTime'] ?? '',
       };
 
       // Get all keys for the header row
@@ -220,13 +224,16 @@ class GoogleServices {
       // Generate a new ID
       final String id = await getNextAvailableId();
 
+      // Generate date of recording
+      final String recordingDate = DateTime.now().toIso8601String();
+
       // Collect all survey data
       final surveyData = <String, dynamic>{
         // Personal info
         'name': prefs.getString('name') ?? '',
         'gender': prefs.getString('gender') ?? '',
         'dob': prefs.getString('dob') ?? '',
-        'doRecording': prefs.getString('doRecording') ?? '',
+        'doRecording': recordingDate,
         'homeTown': prefs.getString('homeTown') ?? '',
         'region': prefs.getString('region') ?? '',
         'currentCity': prefs.getString('currentCity') ?? '',

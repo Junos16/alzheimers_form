@@ -25,7 +25,6 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
 
   String _name = '';
   DateTime? _dob;
-  DateTime? _doRecording;
   String _gender = 'Male';
   String _homeTown = '';
   String _region = '';
@@ -66,10 +65,6 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
 
         final dobString = prefs.getString('dob');
         if (dobString != null) _dob = DateTime.parse(dobString);
-
-        final doRecordingString = prefs.getString('doRecording');
-        if (doRecordingString != null)
-          _doRecording = DateTime.parse(doRecordingString);
       });
     }
   }
@@ -95,9 +90,6 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
     if (_dob != null) {
       await prefs.setString('dob', _dob!.toIso8601String());
     }
-    if (_doRecording != null) {
-      await prefs.setString('doRecording', _doRecording!.toIso8601String());
-    }
 
     setState(() {
       _isFormSubmitted = true;
@@ -105,22 +97,23 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
   }
 
   // Date picker function
-  Future<void> _selectDate(BuildContext context, bool isDoB) async {
+  Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate:
-          isDoB ? (_dob ?? DateTime.now()) : (_doRecording ?? DateTime.now()),
-      firstDate: isDoB ? DateTime(1900) : DateTime(2000),
+      initialDate: _dob ?? DateTime.now(),
+      //isDoB ? (_dob ?? DateTime.now()) : (_doRecording ?? DateTime.now()),
+      firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
 
     if (picked != null) {
       setState(() {
-        if (isDoB) {
+        _dob = picked;
+        /*if (isDoB) {
           _dob = picked;
         } else {
           _doRecording = picked;
-        }
+        }*/
       });
     }
   }
@@ -164,15 +157,7 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
                     label: 'Date of Birth',
                     value: _dob,
                     icon: Icons.cake,
-                    onTap: () => _selectDate(context, true),
-                  ),
-
-                  // Date of Recording
-                  _buildDateField(
-                    label: 'Date of Recording',
-                    value: _doRecording,
-                    icon: Icons.calendar_today,
-                    onTap: () => _selectDate(context, false),
+                    onTap: () => _selectDate(context),
                   ),
 
                   // Gender
@@ -265,9 +250,7 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate() &&
-                            _dob != null &&
-                            _doRecording != null) {
+                        if (_formKey.currentState!.validate() && _dob != null) {
                           // Save data to shared preferences or database
                           _savePersonalInfo();
 
@@ -283,9 +266,6 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        /*setState(() {
-                                          _isFormSubmitted = true;
-                                        });*/
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('OK'),
@@ -295,10 +275,10 @@ class _PersonalInfoFormState extends State<PersonalInfoForm> {
                           );
                         } else {
                           // Show validation message for dates
-                          if (_dob == null || _doRecording == null) {
+                          if (_dob == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Please select both dates'),
+                                content: Text('Please select date of birth'),
                                 backgroundColor: Colors.red,
                               ),
                             );

@@ -38,7 +38,7 @@ class _ADLFormState extends State<ADLForm> {
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey('isADLSubmitted')) {
+    if (prefs.containsKey('isADLSubmitted')) {
       setState(() {
         totalScore = prefs.getInt('adlScore') ?? 0;
 
@@ -67,7 +67,7 @@ class _ADLFormState extends State<ADLForm> {
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('adlScore', totalScore);
-    await prefs.setBool('adlSubmitted', true);
+    await prefs.setBool('isADLSubmitted', true);
 
     await prefs.setBool('bathingScore', bathingScore);
     await prefs.setBool('dressingScore', dressingScore);

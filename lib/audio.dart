@@ -29,7 +29,7 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
   void initState() {
     super.initState();
     _checkSubmissionStatus();
-    
+
     _audioPlayer.onPlayerStateChanged.listen((state) {
       setState(() {
         _playerState = state;
@@ -51,15 +51,15 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
 
   Future<void> _checkSubmissionStatus() async {
     final prefs = await SharedPreferences.getInstance();
-    final isSubmitted = prefs.getBool('audioSubmitted') ?? false;
+    final isSubmitted = prefs.getBool('isAudioSubmitted') ?? false;
     final fileName = prefs.getString('audioFileName');
-    
+
     setState(() {
       _isFormSubmitted = isSubmitted;
       _audioFileName = fileName;
       _hasRecorded = _isFormSubmitted;
     });
-    
+
     if (_isFormSubmitted && _audioFileName != null) {
       await _prepareAudioPlayer();
     }
@@ -67,11 +67,11 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
 
   Future<void> _prepareAudioPlayer() async {
     if (_audioFileName == '') return;
-    
+
     final directory = await getApplicationDocumentsDirectory();
     final audioPath = '${directory.path}/recordings/$_audioFileName';
     final file = File(audioPath);
-    
+
     if (await file.exists()) {
       try {
         await _audioPlayer.setSource(DeviceFileSource(audioPath));
@@ -84,7 +84,7 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
         // Handle the error - maybe reset preferences if file is corrupted
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove('audioFileName');
-        await prefs.remove('audioSubmitted');
+        await prefs.remove('isAudioSubmitted');
         setState(() {
           _audioFileName = '';
           _isFormSubmitted = false;
@@ -151,7 +151,7 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
                 ),
               ),
               const SizedBox(height: 30),
-              
+
               // Show recording UI only if not submitted already
               if (!_isFormSubmitted) ...[
                 Center(
@@ -189,12 +189,13 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
                     _isRecording
                         ? 'Recording in progress...'
                         : _hasRecorded
-                            ? 'Recording complete.'
-                            : 'Tap to start recording',
+                        ? 'Recording complete.'
+                        : 'Tap to start recording',
                     style: TextStyle(
                       fontSize: 16,
                       color: _isRecording ? Colors.red : Colors.black,
-                      fontWeight: _isRecording ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          _isRecording ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                 ),
@@ -202,26 +203,30 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _hasRecorded
-                        ? () {
-                            _saveData();
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Audio Recording Task'),
-                                content: const Text('Recording session completed successfully!'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('OK'),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                        : null,
+                    onPressed:
+                        _hasRecorded
+                            ? () {
+                              _saveData();
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (context) => AlertDialog(
+                                      title: const Text('Audio Recording Task'),
+                                      content: const Text(
+                                        'Recording session completed successfully!',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                            }
+                            : null,
                     style: ElevatedButton.styleFrom(
                       disabledBackgroundColor: Colors.grey.shade300,
                     ),
@@ -235,13 +240,13 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 20),
-              
+
               // Show playback UI if recording exists (either just recorded or previously submitted)
               //if (_hasRecorded && _audioFileName != '') _buildAudioPlayer(),
               if (_isFormSubmitted) _buildAudioPlayer(),
-              
+
               // Only show reset button if form is already submitted
               //if (_hasRecorded && _audioFileName != '') ...[
               if (_isFormSubmitted) ...[
@@ -274,20 +279,23 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
     // Confirm with the user first
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Record New Audio'),
-        content: const Text('This will delete your current recording. Are you sure?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Record New Audio'),
+            content: const Text(
+              'This will delete your current recording. Are you sure?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Confirm'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Confirm'),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
@@ -295,7 +303,7 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
       if (_playerState == PlayerState.playing) {
         await _audioPlayer.stop();
       }
-      
+
       // Delete the old recording file
       if (_audioFileName != '') {
         try {
@@ -309,12 +317,12 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
           print('Error deleting file: $e');
         }
       }
-      
+
       // Reset shared preferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('audioFileName');
-      await prefs.remove('audioSubmitted');
-      
+      await prefs.remove('isAudioSubmitted');
+
       // Reset the state
       setState(() {
         _isFormSubmitted = false;
@@ -367,10 +375,13 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
                       _audioPlayer.resume();
                     } else {
                       // If stopped or completed, restart from beginning
-                      final directory = getApplicationDocumentsDirectory().then((dir) {
-                        final audioPath = '${dir.path}/recordings/$_audioFileName';
-                        _audioPlayer.play(DeviceFileSource(audioPath));
-                      });
+                      final directory = getApplicationDocumentsDirectory().then(
+                        (dir) {
+                          final audioPath =
+                              '${dir.path}/recordings/$_audioFileName';
+                          _audioPlayer.play(DeviceFileSource(audioPath));
+                        },
+                      );
                     }
                   }
                 },
@@ -434,7 +445,7 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
         _recordingPath = path;
       });
       print('Recording saved to: $_recordingPath');
-      
+
       // Prepare the audio player with the new recording
       if (path != null) {
         await _audioPlayer.setSource(DeviceFileSource(path));
@@ -483,7 +494,7 @@ class _AudioDescriptionTaskState extends State<AudioDescriptionTask> {
 
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('audioSubmitted', true);
+    await prefs.setBool('isAudioSubmitted', true);
     await prefs.setString('audioFileName', _audioFileName!);
     setState(() {
       _isFormSubmitted = true;
@@ -504,27 +515,28 @@ class FullscreenImageViewer extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Scaffold(
-              backgroundColor: Colors.black,
-              appBar: AppBar(
-                backgroundColor: Colors.black,
-                iconTheme: const IconThemeData(color: Colors.white),
-                elevation: 0,
-              ),
-              body: SafeArea(
-                child: InteractiveViewer(
-                  minScale: 0.5,
-                  maxScale: 4.0,
-                  child: OrientationBuilder(
-                    builder: (context, orientation) {
-                      return Center(
-                        child: Image.asset(imagePath, fit: BoxFit.contain),
-                      );
-                    },
+            builder:
+                (context) => Scaffold(
+                  backgroundColor: Colors.black,
+                  appBar: AppBar(
+                    backgroundColor: Colors.black,
+                    iconTheme: const IconThemeData(color: Colors.white),
+                    elevation: 0,
+                  ),
+                  body: SafeArea(
+                    child: InteractiveViewer(
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: OrientationBuilder(
+                        builder: (context, orientation) {
+                          return Center(
+                            child: Image.asset(imagePath, fit: BoxFit.contain),
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
           ),
         );
       },

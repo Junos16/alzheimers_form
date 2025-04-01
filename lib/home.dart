@@ -54,7 +54,6 @@ class _HomePageState extends State<HomePage> {
   String patientName = '';
   String gender = '';
   DateTime? dob;
-  DateTime? doRecording;
   String homeTown = '';
   String region = '';
   String currentCity = '';
@@ -74,10 +73,11 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
 
     setState(() {
-      isPersonalInfoSubmitted = prefs.getBool('personalInfoSubmitted') ?? false;
-      isMMSESubmitted = prefs.getBool('mmseSubmitted') ?? false;
-      isADLSubmitted = prefs.getBool('adlSubmitted') ?? false;
-      isAudioSubmitted = prefs.getBool('audioSubmitted') ?? false;
+      isPersonalInfoSubmitted =
+          prefs.getBool('isPersonalInfoSubmitted') ?? false;
+      isMMSESubmitted = prefs.getBool('isMMSESubmitted') ?? false;
+      isADLSubmitted = prefs.getBool('isADLSubmitted') ?? false;
+      isAudioSubmitted = prefs.getBool('isAudioSubmitted') ?? false;
 
       mmseRetaken = prefs.getBool('mmseRetaken') ?? false;
       adlRetaken = prefs.getBool('adlRetaken') ?? false;
@@ -119,15 +119,10 @@ class _HomePageState extends State<HomePage> {
 
       audioFileName = prefs.getString('audioFileName') ?? '';
 
-      // Load dates
+      // Load date of birth
       final dobString = prefs.getString('dob');
       if (dobString != null) {
         dob = DateTime.parse(dobString);
-      }
-
-      final doRecordingString = prefs.getString('doRecording');
-      if (doRecordingString != null) {
-        doRecording = DateTime.parse(doRecordingString);
       }
     });
   }
@@ -196,7 +191,6 @@ class _HomePageState extends State<HomePage> {
         patientName = '';
         gender = '';
         dob = null;
-        doRecording = null;
         homeTown = '';
         region = '';
         currentCity = '';
@@ -231,50 +225,6 @@ class _HomePageState extends State<HomePage> {
       );
     }
   }
-
-  /*void _submitSurvey() async {
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
-    try {
-      final success = await GoogleServices.submitSurvey();
-
-      // Pop loading dialog
-      Navigator.of(context).pop();
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Survey submitted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Failed to submit survey or survey already submitted',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      // Pop loading dialog
-      Navigator.of(context).pop();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }*/
 
   void _submitSurvey() async {
     // Show loading indicator
@@ -392,7 +342,7 @@ class _HomePageState extends State<HomePage> {
         await prefs.setInt('readingScore', 0);
         await prefs.setInt('writingScore', 0);
         await prefs.setInt('copyingScore', 0);
-        await prefs.setBool('mmseSubmitted', false);
+        await prefs.setBool('isMMSESubmitted', false);
         await prefs.setBool('mmseRetaken', true);
 
         setState(() {
@@ -430,7 +380,7 @@ class _HomePageState extends State<HomePage> {
         await prefs.setBool('transferringScore', false);
         await prefs.setBool('continenceScore', false);
         await prefs.setBool('feedingScore', false);
-        await prefs.setBool('adlSubmitted', false);
+        await prefs.setBool('isADLSubmitted', false);
         await prefs.setBool('adlRetaken', true);
 
         setState(() {
@@ -456,7 +406,7 @@ class _HomePageState extends State<HomePage> {
           _loadFormStatus();
         }
       } else if (assessment == 'Audio') {
-        await prefs.setBool('audioSubmitted', false);
+        await prefs.setBool('isAudioSubmitted', false);
         await prefs.setBool('audioRetaken', true);
         await prefs.setString('audioFileName', '');
 
@@ -714,97 +664,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  /*Widget _buildAssessmentCard(
-    BuildContext context, {
-    required String title,
-    required String description,
-    required String points,
-    required IconData iconData,
-    required Color color,
-    required VoidCallback onTap,
-    required IconData statusIcon,
-    required Color statusColor,
-  }) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(iconData, color: color, size: 24),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Icon(statusIcon, color: statusColor, size: 16),
-                            const SizedBox(width: 4),
-                            Text(
-                              points,
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(description, style: const TextStyle(fontSize: 14)),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    points.contains('Completed') || points.contains('Score')
-                        ? 'View Assessment'
-                        : 'Start Assessment',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }*/
 
   Widget _buildAssessmentCard(
     BuildContext context, {

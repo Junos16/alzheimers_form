@@ -81,7 +81,7 @@ class _MMSEFormState extends State<MMSEForm> {
 
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('isMMMSESubmitted')) {
+    if (prefs.containsKey('isMMSESubmitted')) {
       setState(() {
         totalScore = prefs.getInt('mmseScore')!;
         orientationTimeScore = prefs.getInt('orientationTimeScore')!;
@@ -102,7 +102,7 @@ class _MMSEFormState extends State<MMSEForm> {
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('mmseScore', totalScore);
-    await prefs.setBool('mmseSubmitted', true);
+    await prefs.setBool('isMMSESubmitted', true);
     await prefs.setInt('orientationTimeScore', orientationTimeScore);
     await prefs.setInt('orientationPlaceScore', orientationPlaceScore);
     await prefs.setInt('registrationScore', registrationScore);
